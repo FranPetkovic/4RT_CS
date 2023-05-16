@@ -1,0 +1,71 @@
+        public string pretvoriUXml() {
+            string xmlStr = "";
+
+            RegistraturnaJedinica registraturnaJedinica = (treeViewXml.Nodes[0].Tag as RegistraturnaJedinica);
+
+            xmlStr += "<RegistraturnaJedinica";
+            if (registraturnaJedinica.ImateljId != null) xmlStr += "ImateljId=\" " + registraturnaJedinica.ImateljId + " \" ";
+            if (registraturnaJedinica.RazinaId != null) xmlStr += "RazinaId=\" " + registraturnaJedinica.RazinaId + " \" ";
+            if (registraturnaJedinica.Signatura != null) xmlStr += "Signatura=\" " + registraturnaJedinica.Signatura + " \" ";
+            if (registraturnaJedinica.Naziv != null) xmlStr += "Naziv=\" " + registraturnaJedinica.Naziv + " \" ";
+            if (registraturnaJedinica.GodinaOd != null) xmlStr += "GodinaOd=\" " + registraturnaJedinica.GodinaOd + " \" ";
+            if (registraturnaJedinica.GodinaDo != null) xmlStr += "GodinaDo=\" " + registraturnaJedinica.GodinaDo + " \" > ";
+
+            if (registraturnaJedinica.stvaratelj != null) {
+                xmlStr += "<Stvaratelj StvarateljId=\" " + registraturnaJedinica.stvaratelj.StvarateljId + " \" UlogaId=\"" + registraturnaJedinica.stvaratelj.UlogaId + "\" /> ";
+            }
+            if (registraturnaJedinica.NapomenaORazdoblju != null) {
+                xmlStr += "<Stvaratelj StvarateljId=\" " + registraturnaJedinica.stvaratelj.StvarateljId + " \" UlogaId=\"" + registraturnaJedinica.stvaratelj.UlogaId + "\" /> ";
+            }
+            if (registraturnaJedinica.Sadrzaj != null) {
+                xmlStr += "<Sadrzaj>" + registraturnaJedinica.Sadrzaj + "<Sadrzaj/> ";
+            }
+            if (registraturnaJedinica.gradja != null) {
+                xmlStr += "<Gradja KomPodvrsta=\"" + registraturnaJedinica.gradja.KomPodvrstaId + "\"/> ";
+            }
+            if (registraturnaJedinica.medij != null) {
+                xmlStr += "<Medij VrstaMedijaId=\"" + registraturnaJedinica.medij.VrstaMedijaId + "\"/> ";
+            }
+            foreach (Kolicina k in registraturnaJedinica.KolicinaArhivskihJedinica) {
+                if (k.MjernaJedinicaId != null) {
+                    xmlStr += "<KolicinaTehnickihJedinica MjernaJedinicaId=\"" + k.MjernaJedinicaId + "\" kolicina=\"" + k.kolicina + "\"/> ";
+                }
+            }
+
+            foreach (RegistraturnaJedinica reg in registraturnaJedinica.registraturnaJedinica) {
+                xmlStr += "<RegistraturnaJedinica";
+                if (reg.ImateljId != null) xmlStr += "ImateljId=\" " + reg.ImateljId + " \" ";
+                if (reg.RazinaId != null) xmlStr += "RazinaId=\" " + reg.RazinaId + " \" ";
+                if (reg.Signatura != null) xmlStr += "Signatura=\" " + reg.Signatura + " \" ";
+                if (reg.Naziv != null) xmlStr += "ImateljId=\" " + reg.Naziv + " \" ";
+                if (reg.GodinaOd != null) xmlStr += "GodinaOd=\" " + reg.GodinaOd + " \" ";
+                if (reg.GodinaDo != null) xmlStr += "GodinaDo=\" " + reg.GodinaDo + " \" > ";
+
+                if (reg.stvaratelj != null) {
+                    xmlStr += "<Stvaratelj StvarateljId=\" " + reg.stvaratelj.StvarateljId + " \" UlogaId=\"" + reg.stvaratelj.UlogaId + "\" /> ";
+                }
+                if (reg.NapomenaORazdoblju != null) {
+                    xmlStr += "<Stvaratelj StvarateljId=\" " + reg.stvaratelj.StvarateljId + " \" UlogaId=\"" + reg.stvaratelj.UlogaId + "\" /> ";
+                }
+                if (reg.Sadrzaj != null) {
+                    xmlStr += "<Sadrzaj>" + reg.Sadrzaj + "<Sadrzaj/> ";
+                }
+                if (reg.gradja != null) {
+                    xmlStr += "<Gradja KomPodvrsta=\"" + reg.gradja.KomPodvrstaId + "\"/> ";
+                }
+                if (reg.medij != null) {
+                    xmlStr += "<Medij VrstaMedijaId=\"" + reg.medij.VrstaMedijaId + "\"/> ";
+                }
+                foreach (Kolicina k in reg.KolicinaArhivskihJedinica) {
+                    if (k.MjernaJedinicaId != null) {
+                        xmlStr += "<KolicinaTehnickihJedinica MjernaJedinicaId=\"" + k.MjernaJedinicaId + "\" kolicina=\"" + k.kolicina + "\"/> ";
+                    }
+                }
+                xmlStr += "</RegistraturnaJedinica>";
+
+                //pretvoriUXml();
+            }
+            xmlStr += "</RegistraturnaJedinica>";
+
+            return xmlStr;
+        }
