@@ -1,0 +1,608 @@
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Drawing;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows.Forms;
+using System.Xml;
+using System.Xml.Schema;
+using System.IO;
+using static ARHiNET_XML_Manager.Form1.RegistraturnaJedinica;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement;
+using static ARHiNET_XML_Manager.Form1;
+using System.Diagnostics;
+using System.Xml.Serialization;
+using System.Runtime.Remoting.Messaging;
+
+namespace ARHiNET_XML_Manager {
+
+    public partial class Form1 : Form {
+        public Form1() {
+            InitializeComponent();
+        }
+
+        [XmlRoot("RegistraturnaJedinica1")]
+        public class RegistraturnaJedinica {
+            [XmlAttribute("RazinaId")]
+            public int RazinaId { get; set; }
+            public int brojSignatura { get; set; }
+
+            [XmlAttribute("Signatura")]
+            public int Signatura { get; set; }
+
+            [XmlAttribute("Naziv")]
+            public string Naziv { get; set; }
+
+            [XmlAttribute("GodinaOd")]
+            public int GodinaOd { get; set; }
+
+            [XmlAttribute("GodinaDo")]
+            public int GodinaDo { get; set; }
+
+            [XmlAttribute("ImateljId")]
+            public int ImateljId { get; set; }
+
+            [XmlElement("NapomenaORazdoblju")]
+            public string NapomenaORazdoblju { get; set; }
+
+            [XmlElement("Sadrzaj")]
+            public string Sadrzaj { get; set; }
+
+            [XmlElement("Napomena")]
+            public string Napomena { get; set; }
+
+            [XmlElement("Oznaka")]
+            public Oznaka oznaka { get; set; }
+
+            [XmlElement("Stvaratelj")]
+            public Stvaratelj stvaratelj { get; set; }
+
+            [XmlElement("Gradja")]
+            public Gradja gradja { get; set; }
+
+            [XmlElement("Medij")]
+            public Medij medij { get; set; }
+
+            [XmlArray("KolicinaArhivskihJedinica")]
+            [XmlArrayItem("Kolicina")]
+            public List<Kolicina> KolicinaArhivskihJedinica = new List<Kolicina>();
+
+            [XmlArray("KolicinaTehnickihJedinica")]
+            [XmlArrayItem("Kolicina")]
+            public List<Kolicina> KolicinaTehnickihJedinica = new List<Kolicina>();
+
+            [XmlElement("RegistraturnaJedinica")]
+            public List<RegistraturnaJedinica> registraturnaJedinica = new List<RegistraturnaJedinica>();
+
+            public RegistraturnaJedinica() {
+                brojSignatura = 1;
+            }
+
+            public class Oznaka {
+                [XmlAttribute("VrstaOstaleOznakeId")]
+                public int VrstaOstaleOznakeId { get; set; }
+
+                [XmlAttribute("Naziv")]
+                public string Naziv { get; set; }
+
+                public Oznaka() {
+                }
+
+                public Oznaka(int id) {
+                    VrstaOstaleOznakeId = id;
+                }
+
+                public override string ToString() {
+                    return VrstaOstaleOznakeId.ToString();
+                }
+            }
+
+            public class Stvaratelj {
+                [XmlAttribute("StvarateljId")]
+                public int StvarateljId { get; set; }
+
+                [XmlAttribute("UlogaId")]
+                public int UlogaId { get; set; }
+
+                [XmlElement("Razdoblje")]
+                public string Razdoblje { get; set; }
+
+                [XmlElement("NapomenaOStvaratelju")]
+                public string NapomenaOStvaratelju { get; set; }
+            }
+            public class Gradja {
+                [XmlAttribute("KomPodvrstaId")]
+                public int KomPodvrstaId { get; set; }
+            }
+
+            public class Medij {
+                [XmlAttribute("VrstaMedijaId")]
+                public int VrstaMedijaId { get; set; }
+            }
+
+            public class Kolicina {
+                [XmlAttribute("MjernaJedinicaId")]
+                public int MjernaJedinicaId { get; set; }
+
+                [XmlElement("kolicina")]
+                public double kolicina { get; set; }
+
+                [XmlElement("TvarneZnacajke")]
+                public TvarneZnacajke TvarneZnacajke { get; set; }
+            }
+
+            public class TvarneZnacajke {
+                [XmlElement("Opis")]
+                public string Opis { get; set; }
+            }
+        }
+    
+
+
+    void enablePanel(Panel panel) {
+        foreach (Panel p in panelData.Controls) {
+            p.Enabled = false;
+            if (panel == p)
+                p.Enabled = true;
+        }
+    }
+
+        public List<Oznaka> oznake = new List<Oznaka>();
+
+        private void Form1_Load(object sender, EventArgs e) {
+            RegistraturnaJedinica r = new RegistraturnaJedinica();
+            r.RazinaId = 0;
+            r.Signatura = 1;
+            r.Naziv = "RegistraturnaJedinica";
+            r.GodinaOd = 2022;
+            r.GodinaDo = 2023;
+            r.ImateljId = 0;
+
+            treeViewXml.Nodes.Clear();
+
+            TreeNode treeNode = new TreeNode(r.RazinaId + "." + r.Signatura + ". " + "RegistraturnaJedinica");
+            treeNode.Tag = r;
+
+            treeViewXml.Nodes.Add(treeNode);
+
+            oznake.Add(new Oznaka(3));
+            oznake.Add(new Oznaka(4));
+            oznake.Add(new Oznaka(5));
+            oznake.Add(new Oznaka(6));
+            oznake.Add(new Oznaka(7));
+
+            comboBoxVrstaOznake.DataSource = oznake;
+        }
+
+        private void napomenaORazdobljuToolStripMenuItem_Click(object sender, EventArgs e) {
+            TreeNode selectedNode = treeViewXml.SelectedNode;
+
+            if (selectedNode != null) {
+                if (selectedNode?.Tag is RegistraturnaJedinica reg) {
+                    RegistraturnaJedinica r = (selectedNode?.Tag as RegistraturnaJedinica);
+                    r.NapomenaORazdoblju = "NapomenaORazdoblju";
+                    TreeNode treeNode = new TreeNode("NapomenaORazdoblju");
+                    treeNode.Tag = r.NapomenaORazdoblju;
+                    selectedNode.Nodes.Add(treeNode);
+                    ToolStripMenuItem item = sender as ToolStripMenuItem;
+                    if (item != null) {
+                        int index = (item.OwnerItem as ToolStripMenuItem).DropDownItems.IndexOf(item);
+                        dodajToolStripMenuItem.DropDownItems.RemoveAt(index);
+                    }
+                }
+            }
+        }
+
+        private void sadrzajToolStripMenuItem_Click(object sender, EventArgs e) {
+            TreeNode selectedNode = treeViewXml.SelectedNode;
+
+            if (selectedNode != null) {
+                if (selectedNode?.Tag is RegistraturnaJedinica reg) {
+                    RegistraturnaJedinica r = (selectedNode?.Tag as RegistraturnaJedinica);
+                    r.Sadrzaj = "Sadrzaj";
+                    TreeNode treeNode = new TreeNode("Sadrzaj");
+                    treeNode.Tag = r.Sadrzaj;
+                    selectedNode.Nodes.Add(treeNode);
+                    ToolStripMenuItem item = sender as ToolStripMenuItem;
+                    if (item != null) {
+                        int index = (item.OwnerItem as ToolStripMenuItem).DropDownItems.IndexOf(item);
+                        dodajToolStripMenuItem.DropDownItems.RemoveAt(index);
+                    }
+                }
+            }
+        }
+
+        private void napomenaToolStripMenuItem_Click(object sender, EventArgs e) {
+            TreeNode selectedNode = treeViewXml.SelectedNode;
+
+            if (selectedNode != null) {
+                if (selectedNode?.Tag is RegistraturnaJedinica reg) {
+                    RegistraturnaJedinica r = (selectedNode?.Tag as RegistraturnaJedinica);
+                    r.Napomena = "Napomena";
+                    TreeNode treeNode = new TreeNode("Napomena");
+                    treeNode.Tag = r.Napomena;
+                    selectedNode.Nodes.Add(treeNode);
+                    ToolStripMenuItem item = sender as ToolStripMenuItem;
+                    if (item != null) {
+                        int index = (item.OwnerItem as ToolStripMenuItem).DropDownItems.IndexOf(item);
+                        dodajToolStripMenuItem.DropDownItems.RemoveAt(index);
+                    }
+                }
+            }
+        }
+
+        private void oznakaToolStripMenuItem_Click(object sender, EventArgs e) {
+            TreeNode selectedNode = treeViewXml.SelectedNode;
+
+            if (selectedNode != null) {
+                if (selectedNode?.Tag is RegistraturnaJedinica reg) {
+                    RegistraturnaJedinica r = (selectedNode?.Tag as RegistraturnaJedinica);
+                    r.oznaka = new Oznaka();
+                    r.oznaka.VrstaOstaleOznakeId = 0;
+                    r.oznaka.Naziv = "Oznaka";
+                    TreeNode treeNode = new TreeNode("Oznaka");
+                    treeNode.Tag = r.oznaka;
+                    selectedNode.Nodes.Add(treeNode);
+                    ToolStripMenuItem item = sender as ToolStripMenuItem;
+                    if (item != null) {
+                        int index = (item.OwnerItem as ToolStripMenuItem).DropDownItems.IndexOf(item);
+                        dodajToolStripMenuItem.DropDownItems.RemoveAt(index);
+                    }
+                }
+            }
+        }
+
+        private void stvarateljToolStripMenuItem_Click(object sender, EventArgs e) {
+            TreeNode selectedNode = treeViewXml.SelectedNode;
+
+            if (selectedNode != null) {
+                if (selectedNode?.Tag is RegistraturnaJedinica reg) {
+                    RegistraturnaJedinica r = (selectedNode?.Tag as RegistraturnaJedinica);
+                    r.stvaratelj = new Stvaratelj();
+                    r.stvaratelj.UlogaId = 0;
+                    r.stvaratelj.StvarateljId = 0;
+                    r.stvaratelj.Razdoblje = "Razdoblje";
+                    r.stvaratelj.NapomenaOStvaratelju = "NapomenaOStvaratelju";
+                    TreeNode treeNode = new TreeNode("Stvaratelj");
+                    treeNode.Tag = r.stvaratelj;
+                    selectedNode.Nodes.Add(treeNode);
+                    ToolStripMenuItem item = sender as ToolStripMenuItem;
+                    if (item != null) {
+                        int index = (item.OwnerItem as ToolStripMenuItem).DropDownItems.IndexOf(item);
+                        dodajToolStripMenuItem.DropDownItems.RemoveAt(index);
+                    }
+                }
+            }
+        }
+
+        private void gradjaToolStripMenuItem_Click(object sender, EventArgs e) {
+            TreeNode selectedNode = treeViewXml.SelectedNode;
+
+            if (selectedNode != null) {
+                if (selectedNode?.Tag is RegistraturnaJedinica reg) {
+                    RegistraturnaJedinica r = (selectedNode?.Tag as RegistraturnaJedinica);
+                    r.gradja = new Gradja();
+                    r.gradja.KomPodvrstaId = 0;
+                    TreeNode treeNode = new TreeNode("Gradja");
+                    treeNode.Tag = r.gradja;
+                    selectedNode.Nodes.Add(treeNode);
+                    ToolStripMenuItem item = sender as ToolStripMenuItem;
+                    if (item != null) {
+                        int index = (item.OwnerItem as ToolStripMenuItem).DropDownItems.IndexOf(item);
+                        dodajToolStripMenuItem.DropDownItems.RemoveAt(index);
+                    }
+                }
+            }
+        }
+
+        private void medijToolStripMenuItem_Click(object sender, EventArgs e) {
+            TreeNode selectedNode = treeViewXml.SelectedNode;
+
+            if (selectedNode != null) {
+                if (selectedNode?.Tag is RegistraturnaJedinica reg) {
+                    RegistraturnaJedinica r = (selectedNode?.Tag as RegistraturnaJedinica);
+                    r.medij = new Medij();
+                    r.medij.VrstaMedijaId = 0;
+                    TreeNode treeNode = new TreeNode("Medij");
+                    treeNode.Tag = r.medij;
+                    selectedNode.Nodes.Add(treeNode);
+                    ToolStripMenuItem item = sender as ToolStripMenuItem;
+                    if (item != null) {
+                        int index = (item.OwnerItem as ToolStripMenuItem).DropDownItems.IndexOf(item);
+                        dodajToolStripMenuItem.DropDownItems.RemoveAt(index);
+                    }
+                }
+            }
+        }
+        private void kolicinaArhivskihJedinicaToolStripMenuItem_Click(object sender, EventArgs e) {
+            TreeNode selectedNode = treeViewXml.SelectedNode;
+
+            if (selectedNode != null) {
+                if (selectedNode?.Tag is RegistraturnaJedinica reg) {
+                    RegistraturnaJedinica r = (selectedNode?.Tag as RegistraturnaJedinica);
+                    Kolicina nova = new Kolicina();
+                    nova.MjernaJedinicaId = 0;
+                    nova.kolicina = 0.0f;
+                    nova.TvarneZnacajke = new TvarneZnacajke();
+                    nova.TvarneZnacajke.Opis = "Opis";
+                    TreeNode treeNode = new TreeNode("kolicinaArhivskihJedinica");
+                    treeNode.Tag = nova;
+                    selectedNode.Nodes.Add(treeNode);
+                    r.KolicinaArhivskihJedinica.Add(nova);
+                    ToolStripMenuItem item = sender as ToolStripMenuItem;
+                    if (item != null) {
+                        int index = (item.OwnerItem as ToolStripMenuItem).DropDownItems.IndexOf(item);
+                        dodajToolStripMenuItem.DropDownItems.RemoveAt(index);
+                    }
+                }
+            }
+        }
+
+        private void kolicinaTehnickihJedinicaToolStripMenuItem_Click(object sender, EventArgs e) {
+            TreeNode selectedNode = treeViewXml.SelectedNode;
+
+            if (selectedNode != null) {
+                if (selectedNode?.Tag is RegistraturnaJedinica reg) {
+                    RegistraturnaJedinica r = (selectedNode?.Tag as RegistraturnaJedinica);
+                    Kolicina nova = new Kolicina();
+                    nova.MjernaJedinicaId = 0;
+                    nova.kolicina = 0.0f;
+                    nova.TvarneZnacajke = new TvarneZnacajke();
+                    nova.TvarneZnacajke.Opis = "Opis";
+                    TreeNode treeNode = new TreeNode("KolicinaTehnickihJedinica");
+                    treeNode.Tag = nova;
+                    selectedNode.Nodes.Add(treeNode);
+                    r.KolicinaTehnickihJedinica.Add(nova);
+                    ToolStripMenuItem item = sender as ToolStripMenuItem;
+                    if (item != null) {
+                        int index = (item.OwnerItem as ToolStripMenuItem).DropDownItems.IndexOf(item);
+                        dodajToolStripMenuItem.DropDownItems.RemoveAt(index);
+                    }
+                }
+            }
+        }
+
+        private void registraturnaJedinicaToolStripMenuItem_Click(object sender, EventArgs e) {
+            TreeNode selectedNode = treeViewXml.SelectedNode;
+
+            if (selectedNode != null) {
+                if (selectedNode?.Tag is RegistraturnaJedinica reg) {
+                    RegistraturnaJedinica r = (selectedNode?.Tag as RegistraturnaJedinica);
+                    RegistraturnaJedinica nova = new RegistraturnaJedinica();
+                    nova.RazinaId = r.RazinaId + 1;
+                    nova.Signatura = r.brojSignatura;
+                    r.brojSignatura++;
+                    nova.Naziv = "RegistraturnaJedinica";
+                    nova.GodinaOd = 2022;
+                    nova.GodinaDo = 2023;
+                    nova.ImateljId = 0;
+                    TreeNode treeNode = new TreeNode(nova.RazinaId + "." + nova.Signatura + ". " + "RegistraturnaJedinica");
+                    treeNode.Tag = nova;
+                    r.registraturnaJedinica.Add(nova);
+                    selectedNode.Nodes.Add(treeNode);
+                }
+            }
+        }
+
+        private void treeViewXml_AfterSelect(object sender, TreeViewEventArgs e) {
+            dodajToolStripMenuItem.DropDownItems.Clear();
+            dodajToolStripMenuItem.Enabled = true;
+
+            TreeNode selectedNode = treeViewXml.SelectedNode;
+
+            if (selectedNode != null) {
+                if (selectedNode?.Tag is RegistraturnaJedinica reg) {
+                    int index = 0;
+                    RegistraturnaJedinica r = (selectedNode?.Tag as RegistraturnaJedinica);
+
+                    if (r.NapomenaORazdoblju == null) {
+                        dodajToolStripMenuItem.DropDownItems.Add("NapomenaORazdoblju");
+                        dodajToolStripMenuItem.DropDownItems[index].Click += napomenaORazdobljuToolStripMenuItem_Click;
+                        index++;
+                    }
+                    if (r.Sadrzaj == null) {
+                        dodajToolStripMenuItem.DropDownItems.Add("Sadrzaj");
+                        dodajToolStripMenuItem.DropDownItems[index].Click += sadrzajToolStripMenuItem_Click;
+                        index++;
+                    }
+                    if (r.Napomena == null) {
+                        dodajToolStripMenuItem.DropDownItems.Add("Napomena");
+                        dodajToolStripMenuItem.DropDownItems[index].Click += napomenaToolStripMenuItem_Click;
+                        index++;
+                    }
+                    if (r.oznaka == null) {
+                        dodajToolStripMenuItem.DropDownItems.Add("Oznaka");
+                        dodajToolStripMenuItem.DropDownItems[index].Click += oznakaToolStripMenuItem_Click;
+                        index++;
+                    }
+                    if (r.RazinaId == 0 && r.stvaratelj == null) {
+                        dodajToolStripMenuItem.DropDownItems.Add("Stvaratelj");
+                        dodajToolStripMenuItem.DropDownItems[index].Click += stvarateljToolStripMenuItem_Click;
+                        index++;
+                    }
+                    if (r.gradja == null) {
+                        dodajToolStripMenuItem.DropDownItems.Add("Gradja");
+                        dodajToolStripMenuItem.DropDownItems[index].Click += gradjaToolStripMenuItem_Click;
+                        index++;
+                    }
+                    if (r.medij == null) {
+                        dodajToolStripMenuItem.DropDownItems.Add("Medij");
+                        dodajToolStripMenuItem.DropDownItems[index].Click += medijToolStripMenuItem_Click;
+                        index++;
+                    }
+                    dodajToolStripMenuItem.DropDownItems.Add("KolicinaArhivskihJedinica");
+                    dodajToolStripMenuItem.DropDownItems[index].Click += kolicinaArhivskihJedinicaToolStripMenuItem_Click;
+                    index++;
+                    dodajToolStripMenuItem.DropDownItems.Add("KolicinaTehnickihJedinica");
+                    dodajToolStripMenuItem.DropDownItems[index].Click += kolicinaTehnickihJedinicaToolStripMenuItem_Click;
+                    index++;
+                    dodajToolStripMenuItem.DropDownItems.Add("RegistraturnaJedinica");
+                    dodajToolStripMenuItem.DropDownItems[index].Click += registraturnaJedinicaToolStripMenuItem_Click;
+                    index++;
+                }
+                else {
+                    dodajToolStripMenuItem.Enabled = false;
+                }
+            }
+        }
+
+
+        public string pretvoriUXml() {
+            string xmlStr = "";
+
+            RegistraturnaJedinica registraturnaJedinica = (treeViewXml.Nodes[0].Tag as RegistraturnaJedinica);
+
+            xmlStr += "<RegistraturnaJedinica ";
+            if (registraturnaJedinica.ImateljId != null) xmlStr += "ImateljId=\"" + registraturnaJedinica.ImateljId + "\" ";
+            if (registraturnaJedinica.RazinaId != null) xmlStr += "RazinaId=\"" + registraturnaJedinica.RazinaId + "\" ";
+            if (registraturnaJedinica.Signatura != null) xmlStr += "Signatura=\"" + registraturnaJedinica.Signatura + "\" ";
+            if (registraturnaJedinica.Naziv != null) xmlStr += "Naziv=\"" + registraturnaJedinica.Naziv + "\" ";
+            if (registraturnaJedinica.GodinaOd != null) xmlStr += "GodinaOd=\"" + registraturnaJedinica.GodinaOd + "\" ";
+            if (registraturnaJedinica.GodinaDo != null) xmlStr += "GodinaDo=\"" + registraturnaJedinica.GodinaDo + "\" > ";
+
+            if (registraturnaJedinica.stvaratelj != null) {
+                xmlStr += "<Stvaratelj StvarateljId=\" " + registraturnaJedinica.stvaratelj.StvarateljId + " \" UlogaId=\"" + registraturnaJedinica.stvaratelj.UlogaId + "\" /> ";
+            }
+            if (registraturnaJedinica.NapomenaORazdoblju != null) {
+                xmlStr += "<Stvaratelj StvarateljId=\" " + registraturnaJedinica.stvaratelj.StvarateljId + " \" UlogaId=\"" + registraturnaJedinica.stvaratelj.UlogaId + "\" /> ";
+            }
+            if (registraturnaJedinica.Sadrzaj != null) {
+                xmlStr += "<Sadrzaj>" + registraturnaJedinica.Sadrzaj + "</Sadrzaj> ";
+            }
+            if (registraturnaJedinica.gradja != null) {
+                xmlStr += "<Gradja KomPodvrsta=\"" + registraturnaJedinica.gradja.KomPodvrstaId + "\"/> ";
+            }
+            if (registraturnaJedinica.medij != null) {
+                xmlStr += "<Medij VrstaMedijaId=\"" + registraturnaJedinica.medij.VrstaMedijaId + "\"/> ";
+            }
+            foreach (Kolicina k in registraturnaJedinica.KolicinaArhivskihJedinica) {
+                if (k.MjernaJedinicaId != null) {
+                    xmlStr += "<KolicinaTehnickihJedinica MjernaJedinicaId=\"" + k.MjernaJedinicaId + "\" kolicina=\"" + k.kolicina + "\"/> ";
+                }
+            }
+
+            foreach (RegistraturnaJedinica reg in registraturnaJedinica.registraturnaJedinica) {
+                xmlStr += "<RegistraturnaJedinica ";
+                if (reg.ImateljId != null) xmlStr += "ImateljId=\"" + reg.ImateljId + "\" ";
+                if (reg.RazinaId != null) xmlStr += "RazinaId=\"" + reg.RazinaId + "\" ";
+                if (reg.Signatura != null) xmlStr += "Signatura=\"" + reg.Signatura + "\" ";
+                if (reg.Naziv != null) xmlStr += "Naziv=\"" + reg.Naziv + "\" ";
+                if (reg.GodinaOd != null) xmlStr += "GodinaOd=\"" + reg.GodinaOd + "\" ";
+                if (reg.GodinaDo != null) xmlStr += "GodinaDo=\"" + reg.GodinaDo + "\" > ";
+
+                if (reg.stvaratelj != null) {
+                    xmlStr += "<Stvaratelj StvarateljId=\" " + reg.stvaratelj.StvarateljId + " \" UlogaId=\"" + reg.stvaratelj.UlogaId + "\" /> ";
+                }
+                if (reg.NapomenaORazdoblju != null) {
+                    xmlStr += "<Stvaratelj StvarateljId=\" " + reg.stvaratelj.StvarateljId + " \" UlogaId=\"" + reg.stvaratelj.UlogaId + "\" /> ";
+                }
+                if (reg.Sadrzaj != null) {
+                    xmlStr += "<Sadrzaj>" + reg.Sadrzaj + "</Sadrzaj> ";
+                }
+                if (reg.gradja != null) {
+                    xmlStr += "<Gradja KomPodvrsta=\"" + reg.gradja.KomPodvrstaId + "\"/> ";
+                }
+                if (reg.medij != null) {
+                    xmlStr += "<Medij VrstaMedijaId=\"" + reg.medij.VrstaMedijaId + "\"/> ";
+                }
+                foreach (Kolicina k in reg.KolicinaArhivskihJedinica) {
+                    if (k.MjernaJedinicaId != null) {
+                        xmlStr += "<KolicinaTehnickihJedinica MjernaJedinicaId=\"" + k.MjernaJedinicaId + "\" kolicina=\"" + k.kolicina + "\"/> ";
+                    }
+                }
+                xmlStr += "</RegistraturnaJedinica>";
+
+                //pretvoriUXml();
+            }
+            xmlStr += "</RegistraturnaJedinica>";
+
+            return xmlStr;
+        }
+
+        private void promijeniToolStripMenuItem_Click(object sender, EventArgs e) {
+            TreeNode selectedNode = treeViewXml.SelectedNode;
+
+            if (selectedNode != null) {
+                if (selectedNode?.Tag is RegistraturnaJedinica reg) {
+                    enablePanel(panelRegistraturnaJedinica);
+                }
+
+            }
+        }
+
+        private void button1_Click_1(object sender, EventArgs e) {
+            //Debug.WriteLine(pretvoriUXml());
+
+            var serializer = new XmlSerializer(typeof(RegistraturnaJedinica));
+            RegistraturnaJedinica registraturnaJedinica = (treeViewXml.Nodes[0].Tag as RegistraturnaJedinica);
+
+            string fileName = @"C:\Users\Ucenik\Desktop\test.xml";
+            try {
+                using (StreamWriter writer = new StreamWriter(fileName)) {
+                    serializer.Serialize(writer, registraturnaJedinica);
+
+                }
+            }
+            catch (Exception exp) {
+                Console.Write(exp.Message);
+            }
+
+
+        }
+        void PopulateTreeView(TreeNodeCollection nodes, RegistraturnaJedinica obj) {
+            // Create a new TreeNode for the object
+            var node = new TreeNode(obj.Naziv);
+
+            // Add the node to the parent collection
+            nodes.Add(node);
+
+            // Recursively process child objects
+            foreach (var child in obj.registraturnaJedinica) {
+                PopulateTreeView(node.Nodes, child);
+            }
+        }
+
+        private void button2_Click(object sender, EventArgs e) {
+            var fileContent = string.Empty;
+            var filePath = string.Empty;
+
+            using (OpenFileDialog openFileDialog = new OpenFileDialog()) {
+                openFileDialog.InitialDirectory = "c:\\";
+                openFileDialog.Filter = "txt files (*.txt)|*.txt|All files (*.*)|*.*";
+                openFileDialog.FilterIndex = 2;
+                openFileDialog.RestoreDirectory = true;
+
+                if (openFileDialog.ShowDialog() == DialogResult.OK) {
+                    //Get the path of specified file
+                        // Get the path of the specified file
+                        filePath = openFileDialog.FileName;
+
+                        // Read the contents of the file into a stream
+                        var fileStream = openFileDialog.OpenFile();
+
+                        // Read the stream content into a string
+                        using (var reader = new StreamReader(fileStream)) {
+                            fileContent = reader.ReadToEnd();
+                        }
+
+                        // Deserialize the XML into an object
+                        var serializer = new XmlSerializer(typeof(RegistraturnaJedinica));
+                        RegistraturnaJedinica obj;
+
+                        using (var reader = new StringReader(fileContent)) {
+                            obj = (RegistraturnaJedinica)serializer.Deserialize(reader);
+                        }
+
+                        // Now you can use the 'obj' variable which contains the deserialized XML data
+                        Debug.WriteLine(obj.Naziv);
+                    PopulateTreeView(treeViewXml.Nodes, obj);
+
+                }
+
+            }
+        }
+    }
+}
